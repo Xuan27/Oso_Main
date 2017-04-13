@@ -39,17 +39,37 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'raster',
+    'debug_toolbar',
     'Oso_Erosion'
 ]
 
-MIDDLEWARE = [
+INTERNAL_IPS = ('174.121.34.187', '127.0.0.1')
+
+MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+]
+
+DEBUG_TOOLBAR_PANELS = [
+    'debug_toolbar.panels.versions.VersionsPanel',
+    'debug_toolbar.panels.timer.TimerPanel',
+    'debug_toolbar.panels.settings.SettingsPanel',
+    'debug_toolbar.panels.headers.HeadersPanel',
+    'debug_toolbar.panels.request.RequestPanel',
+    'debug_toolbar.panels.sql.SQLPanel',
+    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+    'debug_toolbar.panels.templates.TemplatesPanel',
+    'debug_toolbar.panels.cache.CachePanel',
+    'debug_toolbar.panels.signals.SignalsPanel',
+    'debug_toolbar.panels.logging.LoggingPanel',
+    'debug_toolbar.panels.redirects.RedirectsPanel',
 ]
 
 ROOT_URLCONF = 'Oso_Main.urls'
@@ -121,8 +141,23 @@ USE_L10N = True
 
 USE_TZ = True
 
+MEDIA_URL = '/Raster/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'Raster')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# This example is unlikely to be appropriate for your project.
+CONFIG_DEFAULTS = {
+    # Toolbar options
+    'RESULTS_CACHE_SIZE': 3,
+    'JQUERY_URL': '//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js',
+    'SHOW_COLLAPSED': True,
+    # Panel options
+    'SQL_WARNING_THRESHOLD': 100,   # milliseconds
+}
+

@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
+from django.db import models
 
-from django.contrib.gis.db import models
+#Rasterfile information table with the raster column
+class Rastermodel(models.Model):
+    project = models.CharField(max_length=80)
+    rasterpath = models.ImageField(upload_to='Projects/', null=True, blank=True)
 
-class ElevationRaster(models.Model):
-    storage_name = models.CharField(max_length=100)
-    data_type = models.CharField(max_length=50)
+    def __str__(self):
+        return self.name
 
-
-# Create your models here.

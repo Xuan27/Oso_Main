@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Erosion Index</title>
+</head>
+<body>
+<h2>Elevation model input file</h2><br/>
+{% block content %}
+<form method="POST" enctype="multipart/form-data">{% csrf_token %}
+    <input type="file" name="raster"/><br/>
+    Project Name:<input type="text" name="project"/><br/>
+    <input type="submit" value="Submit Raster File"/>
+</form>
+{% endblock %}
+</body>
+</html>
