@@ -8,8 +8,12 @@
 <h2>Elevation model input file</h2><br/>
 {% block content %}
 <form method="POST" enctype="multipart/form-data">{% csrf_token %}
-    <input type="file" name="raster"/><br/>
-    Project Name:<input type="text" name="project"/><br/>
+    R  <input type="file" name="rasterR" required/><br/>
+    K  <input type="file" name="rasterK" required/><br/>
+    LS  <input type="file" name="rasterLS"/><br/>
+    C  <input type="file" name="rasterC"/><br/>
+    P  <input type="file" name="rasterP"/><br/>
+    Project Name:<input type="text" name="project" required/><br/>
     <input type="submit" value="Submit Raster File"/>
 </form>
 {% endblock %}

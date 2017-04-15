@@ -2,37 +2,33 @@ from django.shortcuts import render
 from forms import Rasterform
 from models import Rastermodel
 from django.core.files.storage import FileSystemStorage
-import os
+import os, sys
 
 def submit(request):
-    if request.method == 'POST' and request.FILES['raster']:
-        file = request.FILES['raster']
+    #if request.method == 'POST' and request.FILES['rasterR'] and request.FILES['rasterK'] and request.FILES['rasterLS'] and request.FILES['rasterC'] and request.FILES['rasterP']:
+    if request.method == 'POST'  and request.FILES['rasterR'] and request.FILES['rasterK']:
+        fileR = request.FILES['rasterR']
+        fileK = request.FILES['rasterK']
         project = request.POST['project']
-        print(project)
         fs = FileSystemStorage()
-        filename = fs.save(project+file.name, file)
-        uploaded_file_url = fs.url(filename)
-        print(fs.base_location)
-        print(file.name)
-        os.system()
+        filenameR = fs.save(project+"/"+fileR.name, fileR)
+        filenameK = fs.save(project+'/'+fileK.name, fileK)
+        uploaded_fileR_url = fs.url(filenameR)
+        uploaded_fileK_url = fs.url(filenameK)
+
 
         form = Rasterform(request.POST, request.FILES)
         print(form.errors)
         if request.method == 'POST':
             if form.is_valid():
-                print (form['rasterpath'])
+                print (fileR.name)
                 form_success = 'form valid'
                 form.save()
+                os.system('gdalinfo '+fs.base_location+'\\'+ project + "\\" + fileR.name)
+                os.system('gdalinfo '+fs.base_location+'\\'+ project + '\\' + fileK.name)
+                #os.system('raster2pgsql -s Texas_South_Coordinate_System.proj4 '+ fs.base_location+ "\\" + project + "\\" + fileR.name + ' public.' + project + ' | psql -h localhost -p5432 -d Oso_Maintainer -U postgres')
                 return render(request, '../templates/response.html', {
-                    'uploaded_file_url': uploaded_file_url, 'form': form_success
-                })
-
-            else:
-                form = Rasterform()
-                print('Errors')
-                form_error = 'form is still not valid'
-                return render(request, '../templates/response.html', {
-                    'uploaded_file_url': uploaded_file_url, 'form': form_error
+                    'uploaded_fileK_url': uploaded_fileR_url, 'uploaded_fileR_url': uploaded_fileK_url, 'form': form_success
                 })
 
     return render(request, 'index.html')

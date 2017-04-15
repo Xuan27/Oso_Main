@@ -5,9 +5,13 @@
     <title>Response</title>
 </head>
 <body>
- {% if uploaded_file_url %}
-    <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+ {% if uploaded_fileR_url %}
+    <p>R File uploaded at: <a href="{{ uploaded_fileR_url }}">{{ uploaded_fileR_url }}</a></p>
   {% endif %}
+
+ {% if uploaded_fileK_url %}
+     <p>K File uploaded at: <a href="{{ uploaded_fileK_url }}">{{ uploaded_fileK_url }}</a></p>
+ {% endif %}
 
     {% if form %}
     <p style="color: red">{{ form }}</p>
