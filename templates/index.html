@@ -9,7 +9,9 @@
 {% block content %}
 <form method="POST" enctype="multipart/form-data">{% csrf_token %}
     R  <input type="file" name="rasterR" required/><br/>
+    <input type="hidden" name="R" value="R">
     K  <input type="file" name="rasterK" required/><br/>
+    <input type="hidden" name="K" value="K">
     LS  <input type="file" name="rasterLS"/><br/>
     C  <input type="file" name="rasterC"/><br/>
     P  <input type="file" name="rasterP"/><br/>

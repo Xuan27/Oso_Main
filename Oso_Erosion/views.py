@@ -3,21 +3,43 @@ from forms import Rasterform
 from models import Rastermodel
 from django.contrib.gis.gdal import GDALRaster
 from django.core.files.storage import FileSystemStorage
-import os, sys
+import os, sys, psycopg2
+
 
 osoMain = os.path.abspath(os.curdir)
 osoErosion = osoMain+'\\Oso_Erosion\\'
+
 def submit(request):
     # if request.method == 'POST' and request.FILES['rasterR'] and request.FILES['rasterK'] and request.FILES['rasterLS'] and request.FILES['rasterC'] and request.FILES['rasterP']:
+
+
+
     if request.method == 'POST' and request.FILES['rasterR'] and request.FILES['rasterK']:
         fileR = request.FILES['rasterR']
         fileK = request.FILES['rasterK']
         project = request.POST['project']
+        R = request.POST['R']
+        K = request.POST['K']
+        factorArray = [R, K]
+        try:
+            conn = psycopg2.connect("dbname='Oso_Maintainer' user='postgres' host='localhost' password='lacucaracha'")
+
+        except:
+            print ("I am unable to connect to the database.")
+
+        cur = conn.cursor()
+        cur.execute("CREATE SCHEMA " + project + ";")
+        for factor in factorArray:
+            cur.execute("CREATE TABLE " + project + "." + factor + "(rid BIGSERIAL PRIMARY KEY NOT NULL, rast RASTER, filename VARCHAR(20))")
+        cur.close()
+        conn.commit()
+        conn.close()
+
         fs = FileSystemStorage()
         filenameR = fs.save(project + "/" + fileR.name, fileR)
         filenameK = fs.save(project + '/' + fileK.name, fileK)
         rasterArray = []
-        factorArray = [fileR.name, fileK.name]
+
         rasterR = GDALRaster(fs.base_location + '\\' + project + '\\' + fileR.name)
         rasterK = GDALRaster(fs.base_location + '\\' + project + '\\' + fileK.name)
         rasterArray.extend((rasterR, rasterK))
@@ -28,21 +50,33 @@ def submit(request):
             coordSysRaster.append(raster.srs.srid)
             for coord in coordSysRaster:
                     if (coord != southTx83):
-                        raster.transform(osoErosion + 'Texas_South_Coordinate_System.proj4')
-                       
+                        rasterTransform = raster.transform(osoErosion + 'Texas_South_Coordinate_System.proj4', driver='tiff')
+                        rasterArray.remove(raster)
+                        #os.remove(raster.name)
+                        rasterArray.append(rasterTransform)
+        #for raster in rasterArray:
+         #   print(raster)
+            #os.system('gdalinfo ' + raster.name)
+          #  os.system('raster2pgsql -s Texas_South_Coordinate_System.proj4 -F -M -a ' + raster.name + ' public.test | psql -h localhost -p5432 -d Oso_Maintainer -U postgres')
 
-            form = Rasterform(request.POST, request.FILES)
-            print(form.errors)
-            if request.method == 'POST':
-                if form.is_valid():
-                    form_success = 'form valid'
+        #os.system('psql -h localhost -p5432 -d Oso_Maintainer -U postgres')
+        #os.system('')
+        #for raster in rasterArray:
+            #os.system('gdalinfo ' + raster.name)
+
+
+            #os.system('raster2pgsql -s Texas_South_Coordinate_System.proj4 -F -M -a '+ raster.name + ' public.test | psql -h localhost -p5432 -d Oso_Maintainer -U postgres')
+        #form = Rasterform(request.POST, request.FILES)
+        #print(form.errors)
+        #if request.method == 'POST':
+         #   if form.is_valid():
+                    #form_success = 'form valid'
                     # form.save()
-                    # os.system('gdalinfo ' + fs.base_location + '\\' + project + "\\" + fileR.name)
-                    # os.system('gdalinfo ' + fs.base_location + '\\' + project + '\\' + fileK.name)
+                    #
                     # os.system('raster2pgsql -s Texas_South_Coordinate_System.proj4 '+ fs.base_location+ "\\" + project + "\\" + fileR.name + ' public.' + project + ' | psql -h localhost -p5432 -d Oso_Maintainer -U postgres')
                     # return render(request, '../templates/response.html', {
                     # 'uploaded_fileK_url': uploaded_fileR_url, 'uploaded_fileR_url': uploaded_fileK_url,
                     # 'form': form_success
                     # })
 
-        return render(request, 'index.html')
+    return render(request, 'index.html')
