@@ -32,6 +32,8 @@ def submit(request):
         fs = FileSystemStorage()
         filenameR = fs.save(project + "/" + fileR.name, fileR)
         filenameK = fs.save(project + '/' + fileK.name, fileK)
+        uploaded_fileR_url = fs.url(filenameR)
+        uploaded_fileK_url = fs.url(filenameK)
         rasterArray = []
 
         rasterR = GDALRaster(fs.base_location + '\\' + project + '\\' + fileR.name)
@@ -40,17 +42,21 @@ def submit(request):
 
         coordSysRaster = []
         southTx83 = 32141
-        for raster in rasterArray:
-            coordSysRaster.append(raster.srs.srid)
-            for coord in coordSysRaster:
-                    if (coord != southTx83):
-                        rasterTransform = raster.transform(osoErosion + 'Texas_South_Coordinate_System.proj4', driver='tiff')
-                        rasterArray.remove(raster)
-                        rasterArray.append(rasterTransform)
+        for element in range(0,2):
+            coordSysRaster.append(rasterArray[element].srs.srid)
+            if (coordSysRaster[element] != southTx83):
+                rasterTransform = rasterArray[element].transform(osoErosion + 'Texas_South_Coordinate_System.proj4', driver='tiff')
+                rasterArray.remove(rasterArray[element])
+                rasterArray.append(rasterTransform)
         for element in range(0,2):
             print(rasterArray[element].name)
-            os.system('raster2pgsql -s Texas_South_Coordinate_System.proj4 -F -M -a ' + rasterArray[element].name + ' ' + project + '.' + factorArray[element] + ' | psql -h localhost -p5432 -d Oso_Maintainer -U postgres')
+            x = os.system('raster2pgsql -s Texas_South_Coordinate_System.proj4 -F -M -a ' + rasterArray[element].name + ' ' + project + '.' + factorArray[element] + ' | psql -h localhost -p5432 -d Oso_Maintainer -U postgres')
 
+        if (x == 0):
+            return render(request, '../templates/response.html', {
+                'uploaded_fileK_url': uploaded_fileR_url, 'uploaded_fileR_url': uploaded_fileK_url,
+                'form': 'Rasters uploaded successfully'
+             })
         #os.system('psql -h localhost -p5432 -d Oso_Maintainer -U postgres')
         #os.system('')
         #for raster in rasterArray:
@@ -66,9 +72,6 @@ def submit(request):
                     # form.save()
                     #
                     # os.system('raster2pgsql -s Texas_South_Coordinate_System.proj4 '+ fs.base_location+ "\\" + project + "\\" + fileR.name + ' public.' + project + ' | psql -h localhost -p5432 -d Oso_Maintainer -U postgres')
-                    # return render(request, '../templates/response.html', {
-                    # 'uploaded_fileK_url': uploaded_fileR_url, 'uploaded_fileR_url': uploaded_fileK_url,
-                    # 'form': form_success
-                    # })
+                    #
 
     return render(request, 'index.html')
